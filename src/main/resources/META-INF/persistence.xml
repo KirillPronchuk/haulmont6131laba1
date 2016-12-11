@@ -10,7 +10,7 @@
     <persistence-unit name="PortalMain">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-        <non-jta-data-source>java:jboss/datasources/PostgresDS</non-jta-data-source>
+        <non-jta-data-source>java:jboss/datasources/postgresDS</non-jta-data-source>
 
         <class>model.Customer</class>
         <class>model.Order</class>
