@@ -33,6 +33,12 @@ public class Tariff extends ModelItem {
         this.cost = cost;
     }
 
+    public Tariff(String name, double speed, double cost){
+        this.name = name;
+        this.speed = speed;
+        this.cost = cost;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -103,4 +109,8 @@ public class Tariff extends ModelItem {
                 this.getCost();
     }
 
+    @Override
+    public Tariff clone(){
+        return new Tariff(this.getName(), this.getSpeed(), this.getCost());
+    }
 }

@@ -2,10 +2,7 @@ package model;
 
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
 import java.io.Serializable;
 
 /**
@@ -13,12 +10,12 @@ import java.io.Serializable;
  */
 
 @MappedSuperclass
-public abstract class ModelItem implements Serializable {
+public abstract class ModelItem implements Serializable, Cloneable {
     @Id
     @GenericGenerator(name = "kaugen", strategy = "increment")
-    @GeneratedValue(generator = "kaugen")
-    @Column(name = "id", nullable = false)
-    private long number;
+    @GeneratedValue(generator = "kaugen" , strategy= GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false, unique = true)
+    private Long number;
 
     public ModelItem() {
 
@@ -35,6 +32,9 @@ public abstract class ModelItem implements Serializable {
     public long getNumber() {
         return number;
     }
+
+    @Override
+    public abstract ModelItem clone();
 }
 
 

@@ -17,55 +17,60 @@
     </repositories>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.2.1.Final</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.0-api -->
-        <dependency>
-            <groupId>org.hibernate.javax.persistence</groupId>
-            <artifactId>hibernate-jpa-2.0-api</artifactId>
-            <version>1.0.1.Final</version>
-        </dependency>
-
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- for JPA, use hibernate-entitymanager instead of hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- optional -->
+
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-osgi</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-envers</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-c3p0</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-proxool</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-infinispan</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
-            <version>5.1.0.Final</version>
+            <version>5.2.4.Final</version>
+            <scope>provided</scope>
         </dependency>
-        <!-- JDBC Drivers -->
+
         <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -73,13 +78,8 @@
             <type>jar</type>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging-api</artifactId>
-            <version>1.0.4</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
+
+
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -113,7 +113,13 @@
             <version>7.6.4</version>
             <scope>provided</scope>
         </dependency>
-        <!--&ndash;&gt;-->
+
+        <dependency>
+            <groupId>com.vaadin.addon</groupId>
+            <artifactId>jpacontainer</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
 
         <!--&lt;!&ndash; Optional for optimizing client-side widgets See: https://vaadin.com/book/-/page/mobile.optimization.html-->
         <dependency>
@@ -150,12 +156,12 @@
             <version>1.0.3</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.vaadin.addon</groupId>
-            <artifactId>jpacontainer</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-
+        <!--<dependency>-->
+        <!--<groupId>dom4j</groupId>-->
+        <!--<artifactId>dom4j</artifactId>-->
+        <!--<version>1.6.1</version>-->
+        <!--<scope>provided</scope>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
@@ -186,6 +192,12 @@
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.1.0.Alpha5</version>
             </plugin>
         </plugins>
     </build>

@@ -20,13 +20,14 @@ public abstract class AbstractWindowDialog extends Window {
 
     AbstractWindowDialog(String caption, MainPage page) {
         super(caption);
+        this.page = page;
         layout = new GridLayout(2, 4);
     }
 
     BeanFieldGroup<Tariff> initTariffWindow() {
-        final TextField name = new TextField();
-        final TextField speed = new TextField();
-        final TextField cost = new TextField();
+        TextField name = new TextField();
+        TextField speed = new TextField();
+        TextField cost = new TextField();
         layout.addComponent(new Label("Название: "), 0, 0);
         layout.addComponent(name, 1, 0);
         layout.addComponent(new Label("Скорость: "), 0, 1);
@@ -35,7 +36,7 @@ public abstract class AbstractWindowDialog extends Window {
         layout.addComponent(cost, 1, 2);
         layout.setMargin(true);
         layout.setSpacing(true);
-        @NotNull final BeanFieldGroup<Tariff> beanFieldGroup = new BeanFieldGroup<>(Tariff.class);
+        BeanFieldGroup<Tariff> beanFieldGroup = new BeanFieldGroup<>(Tariff.class);
         beanFieldGroup.bind(name, MainPage.NAME);
         beanFieldGroup.bind(speed, MainPage.SPEED);
         beanFieldGroup.bind(cost, MainPage.COST);
@@ -44,9 +45,9 @@ public abstract class AbstractWindowDialog extends Window {
     }
 
     BeanFieldGroup<Customer> constructCustomerWindow() {
-        final TextField name = new TextField();
-        final TextField phonenum = new TextField();
-        final TextField adress = new TextField();
+        TextField name = new TextField();
+        TextField phonenum = new TextField();
+        TextField adress = new TextField();
         layout.addComponent(new Label("Имя: "), 0, 0);
         layout.addComponent(name, 1, 0);
         layout.addComponent(new Label("Номер телефона: "), 0, 1);
@@ -55,7 +56,7 @@ public abstract class AbstractWindowDialog extends Window {
         layout.addComponent(adress, 1, 2);
         layout.setMargin(true);
         layout.setSpacing(true);
-        @NotNull final BeanFieldGroup<Customer> beanFieldGroup = new BeanFieldGroup<>(Customer.class);
+        BeanFieldGroup<Customer> beanFieldGroup = new BeanFieldGroup<>(Customer.class);
         beanFieldGroup.bind(name, MainPage.NAME);
         beanFieldGroup.bind(phonenum, MainPage.PHONENUM);
         beanFieldGroup.bind(adress, MainPage.ADDRESS);

@@ -1,11 +1,17 @@
 package ui;
 
+import DAO.AbstractJPA_DAO;
+import DAO.CustomerDAO;
+import DAO.OrderDAO;
+import DAO.TariffDAO;
 import com.vaadin.addon.jpacontainer.JPAContainer;
 import com.vaadin.addon.jpacontainer.JPAContainerFactory;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.cdi.server.VaadinCDIServlet;
+import com.vaadin.data.util.AbstractBeanContainer;
+import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -19,6 +25,7 @@ import ui.windowdialog.AddWindowDialog;
 import ui.windowdialog.DeleteWindowDialog;
 import ui.windowdialog.UpdateWindowDialog;
 
+import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
 
 /**
@@ -49,9 +56,19 @@ public class MainPage extends UI {
     public static final String ORDER_TABLE_NAME = "Договора";
     public static final String CUSTOMER_TABLE_NAME = "Абоненты";
 
-    private JPAContainer<Customer> customer = JPAContainerFactory.make(Customer.class, "PortalMain");
-    private JPAContainer<Order> order = JPAContainerFactory.make(Order.class, "PortalMain");
-    private JPAContainer<Tariff> tariff = JPAContainerFactory.make(Tariff.class, "PortalMain");
+    @EJB
+    private TariffDAO TariffDao;
+    @EJB
+    private CustomerDAO CustomerDao;
+    @EJB
+    private OrderDAO OrderDao;
+
+    @NotNull
+    private static final BeanContainer<Long, Tariff> TariffBeanContainer = new BeanContainer<>(Tariff.class);
+    @NotNull
+    private static final BeanContainer<Long, Customer> CustomerBeanContainer = new BeanContainer<>(Customer.class);
+    @NotNull
+    private static final BeanContainer<Long, Order> OrderBeanContainer = new BeanContainer<>(Order.class);
 
     private final TabSheet tabsheet = new TabSheet();
     private Grid ordersTable = new Grid();
@@ -68,6 +85,26 @@ public class MainPage extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+        CustomerBeanContainer.setBeanIdResolver(new AbstractBeanContainer.BeanIdResolver<Long, Customer>() {
+            @Override
+            public Long getIdForBean(Customer customer) {
+                return customer != null ? customer.getNumber() : null;
+            }
+        });
+
+        OrderBeanContainer.setBeanIdResolver(new AbstractBeanContainer.BeanIdResolver<Long, Order>() {
+            @Override
+            public Long getIdForBean(Order order) {
+                return order != null ? order.getNumber() : null;
+            }
+        });
+
+        TariffBeanContainer.setBeanIdResolver(new AbstractBeanContainer.BeanIdResolver<Long, Tariff>() {
+            @Override
+            public Long getIdForBean(Tariff tariff) {
+                return tariff != null ? tariff.getNumber() : null;
+            }
+        });
         final VerticalLayout layout = new VerticalLayout();
         initButtonSet();
         layout.addComponent(menubar);
@@ -125,10 +162,13 @@ public class MainPage extends UI {
     }
 
     private void fillCustomerTable() {
-        customer.removeAllItems();
+        CustomerBeanContainer.removeAllItems();
         customerTable.setEditorEnabled(false);
+        if (CustomerDao != null) {
+            CustomerBeanContainer.addAll(CustomerDao.findAll());
+        }
         customerTable.setSelectionMode(Grid.SelectionMode.SINGLE);
-        customerTable.setContainerDataSource(customer);
+        customerTable.setContainerDataSource(CustomerBeanContainer);
         customerTable.setColumnOrder(NUMBER, NAME, PHONENUM, ADDRESS);
         customerTable.getColumn(NUMBER).setHeaderCaption("№");
         customerTable.getColumn(NAME).setHeaderCaption("Имя");
@@ -139,19 +179,19 @@ public class MainPage extends UI {
 
     private void initFilter(String tableName) {
         @Nullable Grid table;
-        @Nullable JPAContainer<? extends ModelItem> container;
+        @Nullable BeanContainer<Long, ? extends ModelItem> container;
         switch (tableName) {
             case ORDER_TABLE_NAME:
                 table = ordersTable;
-                container = order;
+                container = OrderBeanContainer;
                 break;
             case CUSTOMER_TABLE_NAME:
                 table = customerTable;
-                container = customer;
+                container = CustomerBeanContainer;
                 break;
             case TARIFF_TABLE_NAME:
                 table = tariffTable;
-                container = tariff;
+                container = TariffBeanContainer;
                 break;
             default:
                 container = null;
@@ -189,10 +229,13 @@ public class MainPage extends UI {
     }
 
     private void fillTariffTable() {
-        tariff.removeAllItems();
+        TariffBeanContainer.removeAllItems();
         tariffTable.setEditorEnabled(false);
+        if (TariffDao != null) {
+            TariffBeanContainer.addAll(TariffDao.findAll());
+        }
         tariffTable.setSelectionMode(Grid.SelectionMode.SINGLE);
-        tariffTable.setContainerDataSource(tariff);
+        tariffTable.setContainerDataSource(TariffBeanContainer);
         tariffTable.setColumnOrder(NUMBER, NAME, COST, SPEED);
         tariffTable.getColumn(NUMBER).setHeaderCaption("№");
         tariffTable.getColumn(NAME).setHeaderCaption("Название");
@@ -202,16 +245,19 @@ public class MainPage extends UI {
     }
 
     private void fillOrderTable() {
-            order.removeAllItems();
-            ordersTable.setEditorEnabled(false);
-            ordersTable.setSelectionMode(Grid.SelectionMode.SINGLE);
-            ordersTable.setContainerDataSource(order);
-            ordersTable.setColumnOrder(NUMBER, CUSTOMERNUM, TARIFFNUM, DATE);
-            ordersTable.getColumn(NUMBER).setHeaderCaption("№");
-            ordersTable.getColumn(CUSTOMERNUM).setHeaderCaption("Абонент №");
-            ordersTable.getColumn(TARIFFNUM).setHeaderCaption("Тариф №");
-            ordersTable.getColumn(DATE).setHeaderCaption("Дата заключения договора");
-            initFilter(ORDER_TABLE_NAME);
+        OrderBeanContainer.removeAllItems();
+        ordersTable.setEditorEnabled(false);
+        if(OrderDao != null){
+            OrderBeanContainer.addAll(OrderDao.findAll());
+        }
+        ordersTable.setSelectionMode(Grid.SelectionMode.SINGLE);
+        ordersTable.setContainerDataSource(OrderBeanContainer);
+        ordersTable.setColumnOrder(NUMBER, CUSTOMERNUM, TARIFFNUM, DATE);
+        ordersTable.getColumn(NUMBER).setHeaderCaption("№");
+        ordersTable.getColumn(CUSTOMERNUM).setHeaderCaption("Абонент №");
+        ordersTable.getColumn(TARIFFNUM).setHeaderCaption("Тариф №");
+        ordersTable.getColumn(DATE).setHeaderCaption("Дата заключения договора");
+        initFilter(ORDER_TABLE_NAME);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
@@ -298,16 +344,28 @@ public class MainPage extends UI {
 
     private MenuBar.Command menuCommand2 = (MenuBar.Command) selectedItem -> getCurrent().addWindow(new AddWindowDialog(tabsheet.getSelectedTab().getCaption(), this));
 
-    public JPAContainer<Order> getOrders(){
-        return order;
+    public BeanContainer<Long, Order> getOrderContainer(){
+        return OrderBeanContainer;
     }
 
-    public JPAContainer<Customer> getCustomers(){
-        return customer;
+    public BeanContainer<Long, Customer> getCustomerContainer(){
+        return CustomerBeanContainer;
     }
 
-    public JPAContainer<Tariff> getTariffs(){
-        return tariff;
+    public BeanContainer<Long, Tariff> getTariffContainer(){
+        return TariffBeanContainer;
+    }
+
+    public TariffDAO getTariffDao(){
+        return TariffDao;
+    }
+
+    public CustomerDAO getCustomerDao(){
+        return CustomerDao;
+    }
+
+    public OrderDAO getOrderDao(){
+        return OrderDao;
     }
 
     @Override

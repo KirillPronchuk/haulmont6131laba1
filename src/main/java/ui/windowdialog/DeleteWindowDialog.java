@@ -30,13 +30,13 @@ public class DeleteWindowDialog extends AbstractWindowDialog {
         @NotNull String head = "Вы точно хотите удалить ";
         switch (tableName) {
             case MainPage.CUSTOMER_TABLE_NAME:
-                header = new Label(head + "абонента:  " + page.getCustomers().getItem(id).getEntity().toString() + " ?");
+                header = new Label(head + "абонента:  " + page.getCustomerContainer().getItem(id).getBean().toString() + " ?");
                 break;
             case MainPage.ORDER_TABLE_NAME:
-                header = new Label(head + tableName + "договор:  " + page.getOrders().getItem(id).getEntity().toString() + " ?");
+                header = new Label(head + tableName + "договор:  " + page.getOrderContainer().getItem(id).getBean().toString() + " ?");
                 break;
             case MainPage.TARIFF_TABLE_NAME:
-                header = new Label(head + tableName + "тариф:  " + page.getTariffs().getItem(id).getEntity().toString() + " ?");
+                header = new Label(head + tableName + "тариф:  " + page.getTariffContainer().getItem(id).getBean().toString() + " ?");
                 break;
             default:
                 break;
@@ -49,13 +49,16 @@ public class DeleteWindowDialog extends AbstractWindowDialog {
         confirm.addClickListener((Button.ClickListener) clickEvent -> {
             switch (tableName) {
                 case MainPage.CUSTOMER_TABLE_NAME:
-                    page.getCustomers().removeItem(id);
+                    page.getCustomerDao().removeById(id);
+                    page.getCustomerContainer().removeItem(id);
                     break;
                 case MainPage.ORDER_TABLE_NAME:
-                    page.getOrders().removeItem(id);
+                    page.getOrderDao().removeById(id);
+                    page.getOrderContainer().removeItem(id);
                     break;
                 case MainPage.TARIFF_TABLE_NAME:
-                    page.getTariffs().removeItem(id);
+                    page.getTariffDao().removeById(id);
+                    page.getTariffContainer().removeItem(id);
                     break;
                 default:
                     break;

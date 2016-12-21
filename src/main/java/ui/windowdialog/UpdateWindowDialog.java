@@ -2,6 +2,7 @@ package ui.windowdialog;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
 import exceptions.UIException;
 import model.Customer;
@@ -58,7 +59,7 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
 
         BeanFieldGroup<Customer> beanFieldGroup = constructCustomerWindow();
         layout.addComponent(confirm, 1, 3);
-        beanFieldGroup.setItemDataSource(page.getCustomers().getItem(id).getEntity());
+        beanFieldGroup.setItemDataSource(page.getCustomerContainer().getItem(id).getBean().clone());
 
         confirm.addClickListener((Button.ClickListener) clickEvent -> {
             Customer customer = null;
@@ -67,8 +68,11 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
                 customer = beanFieldGroup.getItemDataSource().getBean();
                 Matcher matcher = pattern.matcher(customer.getPhonenum());
                 if (matcher.matches()) {
-                    page.getCustomers().removeItem(id);
-                    page.getCustomers().addEntity(customer);
+                    customer.setNumber(id);
+                    page.getCustomerDao().update(customer);
+                    page.getCustomerContainer().removeItem(id);
+                    page.getCustomerContainer().addItem(id,customer);
+//                    page.getCustomerContainer().addBean(customer);
                 } else {
                     Notification.show("Номер телефона в данном формате не поддерживается", Notification.Type.WARNING_MESSAGE);
                 }
@@ -84,11 +88,11 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
 
     private void orderUpdateWindow() {
 
-            final NativeSelect customerID = new NativeSelect();
-            customerID.setContainerDataSource(page.getCustomers());
-            final NativeSelect tariffID = new NativeSelect();
-            tariffID.setContainerDataSource(page.getTariffs());
-            final DateField dateField = new DateField();
+            NativeSelect customerID = new NativeSelect();
+            customerID.setContainerDataSource(new BeanItemContainer<>(page.getCustomerDao().getType(),page.getCustomerDao().findAll()));
+            NativeSelect tariffID = new NativeSelect();
+            tariffID.setContainerDataSource(new BeanItemContainer<>(page.getTariffDao().getType(), page.getTariffDao().findAll()));
+            DateField dateField = new DateField();
             dateField.setDateFormat("yyyy-dd-MM");
 
             layout.addComponent(new Label("№ Тарифа: "), 0, 0);
@@ -102,9 +106,11 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
             layout.setSpacing(true);
             setContent(layout);
 
-            final Order order = page.getOrders().getItem(id).getEntity();
-            tariffID.setValue(page.getTariffs().getItem(order.getTariffnum()).getEntity());
-            customerID.setValue(page.getCustomers().getItem(order.getCustomernum()).getEntity());
+            Order order = page.getOrderContainer().getItem(id).getBean().clone();
+            tariffID.setValue(page.getTariffContainer().getItem(order.getTariffnum()).getBean());
+            tariffID.commit();
+            customerID.setValue(page.getCustomerContainer().getItem(order.getCustomernum()).getBean());
+            customerID.commit();
             dateField.setValue(Date.from(order.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
             confirm.addClickListener((Button.ClickListener) clickEvent -> {
@@ -117,8 +123,9 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
                     order.setDate(dateField.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                 }
 
-                page.getOrders().removeItem(id);
-                page.getOrders().addEntity(order);
+                page.getOrderDao().update(order);
+                page.getOrderContainer().removeItem(id);
+                page.getOrderContainer().addBean(order);
 
                 this.close();
             });
@@ -128,15 +135,18 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
 
         @NotNull final BeanFieldGroup<Tariff> beanFieldGroup = initTariffWindow();
         layout.addComponent(confirm, 1, 3);
-        beanFieldGroup.setItemDataSource(page.getTariffs().getItem(id).getEntity());
+        beanFieldGroup.setItemDataSource(page.getTariffContainer().getItem(id).getBean().clone());
 
         confirm.addClickListener((Button.ClickListener) clickEvent -> {
             Tariff tariff = null;
             try {
                 beanFieldGroup.commit();
                 tariff = beanFieldGroup.getItemDataSource().getBean();
-                page.getTariffs().removeItem(id);
-                page.getTariffs().addEntity(tariff);
+                tariff.setNumber(id);
+                page.getTariffDao().update(tariff);
+                page.getTariffContainer().removeItem(id);
+                page.getTariffContainer().addItem(id, tariff);
+//                page.getTariffContainer().addBean(tariff);
             } catch (FieldGroup.CommitException e) {
                 LOGGER.error("Error in tariffUpdateWindow", e);
                 if (tariff != null) {

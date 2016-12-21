@@ -24,7 +24,6 @@ public class Order extends ModelItem {
     private long customernum;
     @Column(name = "tariffid")
     private long tariffnum;
-    @NotNull
     @Column(name = "orderdate")
     @Convert(converter = utils.LocalDateConverter.class)
     private LocalDate date;
@@ -36,7 +35,7 @@ public class Order extends ModelItem {
         this.date = LocalDate.now();
     }
 
-    public Order(int id, long customernum, long tariffnum) {
+    public Order(long id, long customernum, long tariffnum) {
         super(id);
         this.customernum = customernum;
         this.tariffnum = tariffnum;
@@ -127,5 +126,10 @@ public class Order extends ModelItem {
                 this.getTariffnum() +
                 "\n Дата заключения " +
                 df.format(parsedate);
+    }
+
+    @Override
+    public Order clone(){
+        return new Order(this.getCustomernum(),this.getTariffnum(), this.getDate());
     }
 }

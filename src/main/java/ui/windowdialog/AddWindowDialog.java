@@ -58,17 +58,18 @@ public class AddWindowDialog extends AbstractWindowDialog {
         confirm.addClickListener((Button.ClickListener) clickEvent -> {
             try {
                 beanFieldGroup.commit();
-                @NotNull final Customer customer = beanFieldGroup.getItemDataSource().getBean();
+                Customer customer = beanFieldGroup.getItemDataSource().getBean();
                 Matcher matcher = pattern.matcher(customer.getPhonenum());
                 if (matcher.matches()) {
-                    page.getCustomers().addEntity(customer);
+                    page.getCustomerDao();
+                    page.getCustomerDao().persist(customer);
+                    page.getCustomerContainer().addBean(customer);
                     this.close();
                 } else {
                     Notification.show("Номер телефона в данном формате не поддерживается", Notification.Type.WARNING_MESSAGE);
                 }
             } catch (FieldGroup.CommitException e) {
                 LOGGER.error("Error in customerAddWindow", e);
-                this.close();
                 throw new UIException("Ошибка при добавлении в таблицу пользователей");
             }
         });
@@ -76,9 +77,9 @@ public class AddWindowDialog extends AbstractWindowDialog {
 
     private void orderAddWindow() {
             @NotNull final NativeSelect customerId = new NativeSelect();
-            customerId.setContainerDataSource(page.getCustomers());
+            customerId.setContainerDataSource(page.getCustomerContainer());
             @NotNull final NativeSelect tariffId = new NativeSelect();
-            tariffId.setContainerDataSource(page.getTariffs());
+            tariffId.setContainerDataSource(page.getTariffContainer());
             @NotNull final DateField dateField = new DateField();
             dateField.setDateFormat("yyyy-dd-MM");
 
@@ -92,35 +93,38 @@ public class AddWindowDialog extends AbstractWindowDialog {
             layout.setSpacing(true);
 
             confirm.addClickListener((Button.ClickListener) clickEvent -> {
-                @NotNull final Order order = new Order();
-                @NotNull final Customer customer = (Customer) customerId.getValue();
-                @NotNull final Tariff tariff = (Tariff) tariffId.getValue();
+                tariffId.commit();
+                customerId.commit();
+                Order order = new Order();
+                Customer customer = (Customer) customerId.getValue();
+                Tariff tariff = (Tariff) tariffId.getValue();
 
                 order.setCustomernum(customer.getNumber());
                 order.setTariffnum(tariff.getNumber());
                 if (dateField.getValue() != null) {
                     order.setDate(dateField.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                 }
-
-                page.getOrders().addEntity(order);
+                page.getOrderDao().persist(order);
+                page.getOrderContainer().addBean(order);
                 this.close();
             });
     }
 
     private void tariffAddWindow() {
-        @NotNull final BeanFieldGroup<Tariff> beanFieldGroup = initTariffWindow();
+        BeanFieldGroup<Tariff> beanFieldGroup = initTariffWindow();
         beanFieldGroup.setItemDataSource(new Tariff());
 
         confirm.addClickListener((Button.ClickListener) clickEvent -> {
             try {
                 beanFieldGroup.commit();
-                @NotNull final Tariff tariff = beanFieldGroup.getItemDataSource().getBean();
-                page.getTariffs().addEntity(tariff);
+                Tariff tariff = beanFieldGroup.getItemDataSource().getBean();
+                page.getTariffDao().persist(tariff);
+                page.getTariffContainer().addBean(tariff);
+                this.close();
             } catch (FieldGroup.CommitException e) {
                 LOGGER.error("Error in tariffAddWindow", e);
                 throw new UIException("Ошибка при добавлении в таблицу тарифов");
             }
-            this.close();
         });
     }
 

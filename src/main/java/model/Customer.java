@@ -81,7 +81,7 @@ public class Customer extends ModelItem {
     @Override
     public int hashCode() {
         int result = name.hashCode();
-        result = 31 * result + (int) getNumber();
+        result = 31 * result + (int)getNumber();
         result = 31 * result + phonenum.hashCode();
         result = 31 * result + adress.hashCode();
         return result;
@@ -97,5 +97,10 @@ public class Customer extends ModelItem {
                 this.getPhonenum() +
                 ";\n Адрес " +
                 this.getAdress();
+    }
+
+    @Override
+    public Customer clone(){
+        return new Customer(this.getName(), this.getPhonenum(), this.getAdress());
     }
 }
