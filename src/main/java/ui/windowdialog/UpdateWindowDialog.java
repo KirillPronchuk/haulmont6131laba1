@@ -31,7 +31,6 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
     private final Pattern pattern = Pattern.compile("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$");
 
 
-
     public UpdateWindowDialog(String tableName, Long id, MainPage page) {
         super("Редактирование " + tableName, page);
         this.id = id;
@@ -71,7 +70,7 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
                     customer.setNumber(id);
                     page.getCustomerDao().update(customer);
                     page.getCustomerContainer().removeItem(id);
-                    page.getCustomerContainer().addItem(id,customer);
+                    page.getCustomerContainer().addItem(id, customer);
 //                    page.getCustomerContainer().addBean(customer);
                 } else {
                     Notification.show("Номер телефона в данном формате не поддерживается", Notification.Type.WARNING_MESSAGE);
@@ -88,47 +87,49 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
 
     private void orderUpdateWindow() {
 
-            NativeSelect customerID = new NativeSelect();
-            customerID.setContainerDataSource(new BeanItemContainer<>(page.getCustomerDao().getType(),page.getCustomerDao().findAll()));
-            NativeSelect tariffID = new NativeSelect();
-            tariffID.setContainerDataSource(new BeanItemContainer<>(page.getTariffDao().getType(), page.getTariffDao().findAll()));
-            DateField dateField = new DateField();
-            dateField.setDateFormat("yyyy-dd-MM");
+        NativeSelect customerID = new NativeSelect();
+        customerID.setContainerDataSource(new BeanItemContainer<>(page.getCustomerDao().getType(), page.getCustomerDao().findAll()));
+        NativeSelect tariffID = new NativeSelect();
+        tariffID.setContainerDataSource(new BeanItemContainer<>(page.getTariffDao().getType(), page.getTariffDao().findAll()));
+        DateField dateField = new DateField();
+        dateField.setDateFormat("yyyy-dd-MM");
 
-            layout.addComponent(new Label("№ Тарифа: "), 0, 0);
-            layout.addComponent(tariffID, 1, 0);
-            layout.addComponent(new Label("№ Пользователя: "), 0, 1);
-            layout.addComponent(customerID, 1, 1);
-            layout.addComponent(new Label("Дата заключения договора: "), 0, 2);
-            layout.addComponent(dateField, 1, 2);
-            layout.addComponent(confirm, 1, 3);
-            layout.setMargin(true);
-            layout.setSpacing(true);
-            setContent(layout);
+        layout.addComponent(new Label("№ Тарифа: "), 0, 0);
+        layout.addComponent(tariffID, 1, 0);
+        layout.addComponent(new Label("№ Пользователя: "), 0, 1);
+        layout.addComponent(customerID, 1, 1);
+        layout.addComponent(new Label("Дата заключения договора: "), 0, 2);
+        layout.addComponent(dateField, 1, 2);
+        layout.addComponent(confirm, 1, 3);
+        layout.setMargin(true);
+        layout.setSpacing(true);
+        setContent(layout);
 
-            Order order = page.getOrderContainer().getItem(id).getBean().clone();
-            tariffID.setValue(page.getTariffContainer().getItem(order.getTariffnum()).getBean());
+        Order order = page.getOrderContainer().getItem(id).getBean().clone();
+        tariffID.setValue(page.getTariffContainer().getItem(order.getTariffnum()).getBean());
+        customerID.setValue(page.getCustomerContainer().getItem(order.getCustomernum()).getBean());
+        dateField.setValue(Date.from(order.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+
+        confirm.addClickListener((Button.ClickListener) clickEvent -> {
+
             tariffID.commit();
-            customerID.setValue(page.getCustomerContainer().getItem(order.getCustomernum()).getBean());
             customerID.commit();
-            dateField.setValue(Date.from(order.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant()));
 
-            confirm.addClickListener((Button.ClickListener) clickEvent -> {
-                final Customer customer = (Customer) customerID.getValue();
-                final Tariff tariff = (Tariff) tariffID.getValue();
+            Customer customer = (Customer) customerID.getValue();
+            Tariff tariff = (Tariff) tariffID.getValue();
 
-                order.setCustomernum(customer.getNumber());
-                order.setTariffnum(tariff.getNumber());
-                if (dateField.getValue() != null) {
-                    order.setDate(dateField.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                }
+            order.setCustomernum(customer.getNumber());
+            order.setTariffnum(tariff.getNumber());
+            if (dateField.getValue() != null) {
+                order.setDate(dateField.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            }
 
-                page.getOrderDao().update(order);
-                page.getOrderContainer().removeItem(id);
-                page.getOrderContainer().addBean(order);
+            page.getOrderDao().update(order);
+            page.getOrderContainer().removeItem(id);
+            page.getOrderContainer().addBean(order);
 
-                this.close();
-            });
+            this.close();
+        });
     }
 
     private void tariffUpdateWindow() {
