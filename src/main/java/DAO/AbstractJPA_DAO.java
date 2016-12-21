@@ -14,7 +14,7 @@ import java.util.List;
 public abstract class AbstractJPA_DAO<E extends model.ModelItem> implements DAO<E>{
     protected Class<E> entityClass;
 
-    @PersistenceContext(unitName = "PortalMain", type = PersistenceContextType.TRANSACTION)
+    @PersistenceContext(unitName = "PortalMain")//, type = PersistenceContextType.TRANSACTION)
     protected EntityManager entityManager;
 
     public AbstractJPA_DAO(Class<E> type) {
@@ -23,17 +23,17 @@ public abstract class AbstractJPA_DAO<E extends model.ModelItem> implements DAO<
 
     public void persist(E entity) {
         entityManager.persist(entity);
-        entityManager.flush();
+//        entityManager.flush();
     }
 
     public void remove(E entity) {
         entityManager.remove(entity);
-        entityManager.flush();
+      //  entityManager.flush();
     }
 
     public void update(E entity){
         entityManager.merge(entity);
-        entityManager.flush();
+      //  entityManager.flush();
     }
 
     public void removeById(Long id){

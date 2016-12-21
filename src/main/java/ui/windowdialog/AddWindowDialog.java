@@ -2,6 +2,7 @@ package ui.windowdialog;
 
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.ui.*;
 import exceptions.UIException;
 import model.Customer;
@@ -76,11 +77,11 @@ public class AddWindowDialog extends AbstractWindowDialog {
     }
 
     private void orderAddWindow() {
-            @NotNull final NativeSelect customerId = new NativeSelect();
-            customerId.setContainerDataSource(page.getCustomerContainer());
-            @NotNull final NativeSelect tariffId = new NativeSelect();
-            tariffId.setContainerDataSource(page.getTariffContainer());
-            @NotNull final DateField dateField = new DateField();
+            NativeSelect customerId = new NativeSelect();
+            customerId.setContainerDataSource(new BeanItemContainer<>(page.getCustomerDao().getType(), page.getCustomerDao().findAll()));
+            NativeSelect tariffId = new NativeSelect();
+            tariffId.setContainerDataSource(new BeanItemContainer<>(page.getTariffDao().getType(), page.getTariffDao().findAll()));
+            DateField dateField = new DateField();
             dateField.setDateFormat("yyyy-dd-MM");
 
             layout.addComponent(new Label("№ Тарифа: "), 0, 0);

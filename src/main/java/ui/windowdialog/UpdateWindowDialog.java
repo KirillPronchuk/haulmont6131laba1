@@ -114,6 +114,7 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
 
             tariffID.commit();
             customerID.commit();
+            order.setNumber(id);
 
             Customer customer = (Customer) customerID.getValue();
             Tariff tariff = (Tariff) tariffID.getValue();
@@ -123,10 +124,9 @@ public class UpdateWindowDialog extends AbstractWindowDialog {
             if (dateField.getValue() != null) {
                 order.setDate(dateField.getValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             }
-
             page.getOrderDao().update(order);
             page.getOrderContainer().removeItem(id);
-            page.getOrderContainer().addBean(order);
+            page.getOrderContainer().addItem(id, order);
 
             this.close();
         });
